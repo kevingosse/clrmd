@@ -80,6 +80,11 @@ namespace Microsoft.Diagnostics.Runtime
             return result;
         }
 
+        public void WriteMemory(ulong address, byte[] buffer, int count, out int bytesWritten)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool ReadMemory(ulong address, IntPtr buffer, int bytesRequested, out int bytesRead)
         {
             bool result = _reader.ReadMemory(address, buffer, bytesRequested, out bytesRead);

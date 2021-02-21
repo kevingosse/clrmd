@@ -219,6 +219,16 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             return read;
         }
 
+        public void Write(byte[] buffer, int virtualAddress, int count)
+        {
+            int offset = RvaToOffset(virtualAddress);
+            if (offset == -1)
+                return;
+
+            SeekTo(offset);
+            Stream.Write(buffer, 0, count);
+        }
+
         private ResourceEntry CreateResourceRoot()
         {
             return new ResourceEntry(this, null, "root", false, RvaToOffset(ResourceVirtualAddress));

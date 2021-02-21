@@ -55,6 +55,7 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             private const string Kernel32LibraryName = "kernel32.dll";
 
             public const uint FILE_MAP_READ = 4;
+            public const uint FILE_MAP_WRITE = 2;
 
             [DllImport(Kernel32LibraryName)]
             [return: MarshalAs(UnmanagedType.Bool)]

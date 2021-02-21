@@ -229,6 +229,7 @@ namespace Microsoft.Diagnostics.Runtime
                 bytesRequested = buffer.Length;
 
             int res = _spaces.ReadVirtual(address, buffer, (uint)bytesRequested, out uint read);
+
             bytesRead = (int)read;
             return res;
         }
@@ -389,6 +390,17 @@ namespace Microsoft.Diagnostics.Runtime
             return ReadVirtual(address, buffer, bytesRequested, out bytesRead) >= 0;
         }
 
+        public void WriteMemory(ulong address, byte[] buffer, int count, out int bytesWritten)
+        {
+            SetClientInstance();
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            int res = _spaces.WriteVirtualUncached(address, buffer, (uint)count, out uint read);
+
+            bytesWritten = (int)read;
+        }
+
         public ulong ReadPointerUnsafe(ulong addr)
         {
             if (ReadVirtual(addr, _ptrBuffer, IntPtr.Size, out int read) != 0)
@@ -458,7 +470,7 @@ namespace Microsoft.Diagnostics.Runtime
             int major = (ushort)Marshal.ReadInt16(buffer, 10);
             int patch = (ushort)Marshal.ReadInt16(buffer, 12);
             int revision = (ushort)Marshal.ReadInt16(buffer, 14);
-            
+
             version = new VersionInfo(major, minor, revision, patch);
         }
 

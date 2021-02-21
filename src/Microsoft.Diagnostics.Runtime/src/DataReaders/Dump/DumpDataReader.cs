@@ -210,6 +210,12 @@ namespace Microsoft.Diagnostics.Runtime
             return bytesRead > 0;
         }
 
+        public void WriteMemory(ulong address, byte[] buffer, int count, out int bytesWritten)
+        {
+            _dumpReader.WriteMemory(address, buffer, count);
+            bytesWritten = 0;
+        }
+
         public bool ReadMemory(ulong address, IntPtr buffer, int bytesRequested, out int bytesRead)
         {
             bytesRead = (int)_dumpReader.ReadPartialMemory(address, buffer, (uint)bytesRequested);

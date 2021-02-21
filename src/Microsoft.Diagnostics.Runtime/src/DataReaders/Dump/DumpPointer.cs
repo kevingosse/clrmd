@@ -72,6 +72,11 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             RawCopy(_pointer, dest, numberBytesToCopy);
         }
 
+        public void Write(IntPtr source, uint count)
+        {
+            RawCopy(source, _pointer, count);
+        }
+
         // All of the Marshal.Copy methods copy to arrays. We need to copy between IntPtrs. 
         // Provide a friendly wrapper over a raw pinvoke to RtlMoveMemory.
         // Note that we actually want a copy, but RtlCopyMemory is a macro and compiler intrinisic 
@@ -97,6 +102,11 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             EnsureSizeRemaining((uint)numberBytesToCopy);
 
             Marshal.Copy(_pointer, dest, offset, numberBytesToCopy);
+        }
+
+        public void CopyFrom(byte[] source, int offset, int numberBytesToCopy)
+        {
+            Marshal.Copy(source, offset, _pointer, numberBytesToCopy);
         }
 
         /// <summary>

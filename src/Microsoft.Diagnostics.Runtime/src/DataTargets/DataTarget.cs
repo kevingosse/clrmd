@@ -39,8 +39,10 @@ namespace Microsoft.Diagnostics.Runtime
         /// <returns>A DataTarget instance.</returns>
         public static DataTarget LoadCrashDump(string fileName)
         {
-            DbgEngDataReader reader = new DbgEngDataReader(fileName);
-            return CreateFromReader(reader, reader.DebuggerInterface);
+            //DbgEngDataReader reader = new DbgEngDataReader(fileName);
+            var reader = new DumpDataReader(fileName);
+            return CreateFromReader(reader, null);
+            //return CreateFromReader(reader, reader.DebuggerInterface);
         }
 
         /// <summary>

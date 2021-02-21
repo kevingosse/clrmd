@@ -106,7 +106,22 @@ namespace Microsoft.Diagnostics.Runtime
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new InvalidOperationException();
+            if (offset == 0)
+            {
+                _dataReader.WriteMemory((ulong)(_pos + _disp), buffer, count, out var written);
+                return;
+            }
+            else
+            {
+                if (_tmp == null || _tmp.Length < count)
+                    _tmp = new byte[count];
+
+                Buffer.BlockCopy(buffer, offset, _tmp, 0, count);
+
+                _dataReader.WriteMemory((ulong)(_pos + _disp), _tmp, count, out var written);
+
+                return;
+            }
         }
     }
 }

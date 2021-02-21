@@ -291,6 +291,32 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             return chunk.Adjust(offset).GetDword();
         }
 
+        public void WriteMemory(ulong targetRequestStart, byte[] source, int bytesRequested)
+        {
+            int bytesRead = 0;
+            do
+            {
+                int chunkIndex = _memoryChunks.GetChunkContainingAddress(targetRequestStart + (uint)bytesRead);
+                if (chunkIndex == -1)
+                    break;
+
+                DumpPointer pointerCurrentChunk = TranslateRVA(_memoryChunks.RVA((uint)chunkIndex));
+                ulong startAddr = targetRequestStart + (uint)bytesRead - _memoryChunks.StartAddress((uint)chunkIndex);
+                ulong bytesAvailable = _memoryChunks.Size((uint)chunkIndex) - startAddr;
+
+                int bytesToCopy = bytesRequested - bytesRead;
+                if (bytesAvailable < (uint)bytesToCopy)
+                    bytesToCopy = (int)bytesAvailable;
+
+                Debug.Assert(bytesToCopy > 0);
+                if (bytesToCopy == 0)
+                    break;
+
+                pointerCurrentChunk.Adjust(startAddr).CopyFrom(source, bytesRead, bytesToCopy);
+                bytesRead += bytesToCopy;
+            } while (bytesRead < bytesRequested);
+        }
+
         public virtual int ReadPartialMemory(ulong targetRequestStart, byte[] destinationBuffer, int bytesRequested)
         {
             EnsureValid();
@@ -442,12 +468,12 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
         /// <param name="path">filename to open dump file</param>
         public DumpReader(string path)
         {
-            _file = File.OpenRead(path);
+            _file = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             long length = _file.Length;
 
             // The dump file may be many megabytes large, so we don't want to
             // read it all at once. Instead, doing a mapping.
-            _fileMapping = CreateFileMapping(_file.SafeFileHandle, IntPtr.Zero, PageProtection.Readonly, 0, 0, null);
+            _fileMapping = CreateFileMapping(_file.SafeFileHandle, IntPtr.Zero, PageProtection.ReadWrite, 0, 0, null);
 
             if (_fileMapping.IsInvalid)
             {
@@ -455,7 +481,7 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
                 Marshal.ThrowExceptionForHR(error, new IntPtr(-1));
             }
 
-            _view = MapViewOfFile(_fileMapping, WindowsFunctions.NativeMethods.FILE_MAP_READ, 0, 0, IntPtr.Zero);
+            _view = MapViewOfFile(_fileMapping, WindowsFunctions.NativeMethods.FILE_MAP_READ | WindowsFunctions.NativeMethods.FILE_MAP_WRITE, 0, 0, IntPtr.Zero);
             if (_view.IsInvalid)
             {
                 int error = Marshal.GetHRForLastWin32Error();

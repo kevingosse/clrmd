@@ -57,6 +57,8 @@ namespace Microsoft.Diagnostics.Runtime
         /// <returns>True if any bytes were read at all, false if the read failed (and no bytes were read).</returns>
         bool ReadMemory(ulong address, byte[] buffer, int bytesRequested, out int bytesRead);
 
+        void WriteMemory(ulong address, byte[] buffer, int count, out int bytesWritten);
+
         /// <summary>
         /// Read memory out of the target process.
         /// </summary>

@@ -86,7 +86,7 @@ namespace Microsoft.Diagnostics.Runtime
 
         private ModuleInfo CreateModuleInfo(ElfLoadedImage img)
         {
-            return new ModuleInfo
+            return new ModuleInfo(this)
             {
                 FileName = img.Path,
                 FileSize = (uint)img.Size,
@@ -162,6 +162,11 @@ namespace Microsoft.Diagnostics.Runtime
         {
             bytesRead = _core.ReadMemory((long)address, buffer, bytesRequested);
             return bytesRead > 0;
+        }
+
+        public void WriteMemory(ulong address, byte[] buffer, int count, out int bytesWritten)
+        {
+            throw new NotImplementedException();
         }
 
         public bool ReadMemory(ulong address, IntPtr ptr, int bytesRequested, out int bytesRead)

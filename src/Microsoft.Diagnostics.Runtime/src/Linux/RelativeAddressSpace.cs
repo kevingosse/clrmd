@@ -40,6 +40,16 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             return _baseAddressSpace.Read(basePosition, buffer, bufferOffset, count);
         }
 
+        public void Write(long position, byte[] buffer, int bufferOffset, int count)
+        {
+            long basePosition = position - _baseToRelativeShift;
+            if (basePosition < _baseStart)
+                return;
+
+            count = (int)Math.Min(count, _length);
+            _baseAddressSpace.Write(basePosition, buffer, bufferOffset, count);
+        }
+
         public long Length => _baseStart + _length + _baseToRelativeShift;
     }
 }
