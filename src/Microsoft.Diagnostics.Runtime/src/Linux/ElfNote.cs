@@ -40,6 +40,12 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             return _reader.ReadBytes(position + contentsoffset, buffer);
         }
 
+        public void WriteContents(long position, byte[] buffer)
+        {
+            long contentsoffset = _position + HeaderSize + Align4(Header.NameSize);
+            _reader.DataSource.Write(position + contentsoffset, buffer, buffer.Length);
+        }
+
         public T ReadContents<T>(ref long position)
             where T : unmanaged
         {

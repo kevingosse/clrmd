@@ -66,6 +66,87 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             return _virtualAddressSpace.Read(address, buffer);
         }
 
+        public void WriteMemory(long address, byte[] buffer, int length)
+        {
+            _virtualAddressSpace ??= new ElfVirtualAddressSpace(ElfFile.ProgramHeaders, _reader.DataSource);
+            _virtualAddressSpace.Write(address, buffer, length);
+        }
+
+        public void ReplaceModules(string pattern, string replacement)
+        {
+
+            ElfNote fileNote = GetNotes(ElfNoteType.File).Single();
+
+            long position = 0;
+            ulong entryCount = 0;
+            if (ElfFile.Header.Is64Bit)
+            {
+                ElfFileTableHeader64 header = fileNote.ReadContents<ElfFileTableHeader64>(ref position);
+                entryCount = header.EntryCount;
+            }
+            else
+            {
+                ElfFileTableHeader32 header = fileNote.ReadContents<ElfFileTableHeader32>(ref position);
+                entryCount = header.EntryCount;
+            }
+
+            ElfFileTableEntryPointers64[] fileTable = new ElfFileTableEntryPointers64[entryCount];
+            Dictionary<string, ElfLoadedImage> lookup = new Dictionary<string, ElfLoadedImage>(fileTable.Length);
+
+            for (int i = 0; i < fileTable.Length; i++)
+            {
+                if (ElfFile.Header.Is64Bit)
+                {
+                    fileTable[i] = fileNote.ReadContents<ElfFileTableEntryPointers64>(ref position);
+                }
+                else
+                {
+                    ElfFileTableEntryPointers32 entry = fileNote.ReadContents<ElfFileTableEntryPointers32>(ref position);
+                    fileTable[i].Start = entry.Start;
+                    fileTable[i].Stop = entry.Stop;
+                    fileTable[i].PageOffset = entry.PageOffset;
+                }
+            }
+
+            int size = (int)(fileNote.Header.ContentSize - position);
+            byte[] bytes = ArrayPool<byte>.Shared.Rent(size);
+            try
+            {
+                int read = fileNote.ReadContents(position, bytes);
+                int start = 0;
+                for (int i = 0; i < fileTable.Length; i++)
+                {
+                    int end = start;
+                    while (bytes[end] != 0)
+                        end++;
+
+                    string path = Encoding.UTF8.GetString(bytes, start, end - start);
+
+                    if (path.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+                    {
+                        path = path.Replace(pattern, replacement);
+                        var newBuffer = Encoding.UTF8.GetBytes(path);
+                        fileNote.WriteContents(position + start, newBuffer);
+                    }
+
+                    start = end + 1;
+
+                    if (!lookup.TryGetValue(path, out ElfLoadedImage? image))
+                        image = lookup[path] = new ElfLoadedImage(ElfFile.VirtualAddressReader, ElfFile.Header.Is64Bit, path);
+
+                    ulong fileStart = fileTable[i].Start;
+                    ElfProgramHeader? programHeader = ElfFile.ProgramHeaders.FirstOrDefault(
+                        s => (ulong)s.VirtualAddress <= fileStart && fileStart < (ulong)s.VirtualAddress + (ulong)s.VirtualSize);
+
+                    image.AddTableEntryPointers(fileTable[i]);
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(bytes);
+            }
+        }
+
         private IEnumerable<ElfNote> GetNotes(ElfNoteType type)
         {
             return ElfFile.Notes.Where(n => n.Type == type);

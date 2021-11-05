@@ -117,6 +117,11 @@ namespace Microsoft.Diagnostics.Runtime
 
         public override int PointerSize { get; }
 
+        public void ReplaceModules(string pattern, string replacement)
+        {
+            _core.ReplaceModules(pattern, replacement);
+        }
+
         public IEnumerable<uint> EnumerateOSThreadIds()
         {
             foreach (IElfPRStatus status in _core.EnumeratePRStatus())
@@ -177,6 +182,13 @@ namespace Microsoft.Diagnostics.Runtime
         {
             DebugOnly.Assert(!buffer.IsEmpty);
             return address > long.MaxValue ? 0 : _core.ReadMemory((long)address, buffer);
+        }
+
+        public override void Write(ulong address, byte[] buffer, int length)
+        {
+            if (address > long.MaxValue) return;
+            
+            _core.WriteMemory((long)address, buffer, length);
         }
 
         internal IEnumerable<string> GetModulesFullPath()

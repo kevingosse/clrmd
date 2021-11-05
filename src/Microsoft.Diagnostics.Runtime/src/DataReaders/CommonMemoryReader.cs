@@ -14,6 +14,11 @@ namespace Microsoft.Diagnostics.Runtime
 
         public abstract int Read(ulong address, Span<byte> buffer);
 
+        public virtual void Write(ulong address, byte[] buffer, int length)
+        {
+            throw new NotImplementedException();
+        }
+
         public unsafe bool Read<T>(ulong address, out T value)
             where T : unmanaged
         {

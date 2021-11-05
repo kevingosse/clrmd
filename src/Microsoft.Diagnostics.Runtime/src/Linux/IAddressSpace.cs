@@ -9,6 +9,9 @@ namespace Microsoft.Diagnostics.Runtime.Linux
     internal interface IAddressSpace
     {
         int Read(long position, Span<byte> buffer);
+
+        void Write(long position, byte[] buffer, int length);
+
         long Length { get; }
         string Name { get; }
     }

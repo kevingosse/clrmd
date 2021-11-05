@@ -85,7 +85,16 @@ namespace Microsoft.Diagnostics.Runtime
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException($"Cannot write to a {nameof(ReadVirtualStream)}.");
+            if (offset != 0)
+            {
+                var newBuffer = new byte[count];
+                Buffer.BlockCopy(buffer, offset, newBuffer, 0, count);
+                buffer = newBuffer;
+            }
+
+            _dataReader.Write((ulong)(_pos + _disp), buffer, count);
+
+            _pos += count;
         }
     }
 }

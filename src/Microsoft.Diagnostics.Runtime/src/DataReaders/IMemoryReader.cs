@@ -22,6 +22,8 @@ namespace Microsoft.Diagnostics.Runtime
         /// <returns>The number of bytes read into the buffer.</returns>
         int Read(ulong address, Span<byte> buffer);
 
+        void Write(ulong address, byte[] buffer, int length);
+
         /// <summary>
         /// Read an unmanaged value from the given address.
         /// </summary>

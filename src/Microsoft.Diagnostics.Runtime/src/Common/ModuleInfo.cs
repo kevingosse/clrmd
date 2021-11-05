@@ -61,7 +61,13 @@ namespace Microsoft.Diagnostics.Runtime
         {
             try
             {
-                PEImage image = new PEImage(new ReadVirtualStream(DataReader, (long)ImageBase, IndexFileSize), leaveOpen: false, isVirtual: _isVirtual);
+                var image = new PEImage(new ReadVirtualStream(DataReader, (long)ImageBase, IndexFileSize), leaveOpen: false, isVirtual: _isVirtual);
+
+                if (image.PEHeader == null)
+                {
+                    image = new PEImage(new ReadVirtualStream(DataReader, (long)ImageBase, IndexFileSize), leaveOpen: false, isVirtual: !_isVirtual);
+                }
+
                 if (!_isManaged.HasValue)
                     _isManaged = image.IsManaged;
 

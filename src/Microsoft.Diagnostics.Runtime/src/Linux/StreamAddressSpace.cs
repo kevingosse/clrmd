@@ -24,5 +24,11 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             _stream.Seek(position, SeekOrigin.Begin);
             return _stream.Read(buffer);
         }
+
+        public void Write(long position, byte[] buffer, int length)
+        {
+            _stream.Seek(position, SeekOrigin.Begin);
+            _stream.Write(buffer, 0, length);
+        }
     }
 }

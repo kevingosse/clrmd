@@ -66,6 +66,41 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             return bytesRead;
         }
 
+        public void Write(long address, byte[] buffer, int length)
+        {
+            if (address == 0 || buffer.Length == 0)
+                return;
+
+            int i = GetFirstSegmentContaining(address);
+            if (i < 0)
+                return;
+
+            int bytesRead = 0;
+            for (; i < _segments.Length; i++)
+            {
+                ElfProgramHeader segment = _segments[i];
+                long virtualAddress = segment.VirtualAddress;
+                long virtualSize = segment.VirtualSize;
+
+                if (virtualAddress > address)
+                    break;
+
+                if (address >= virtualAddress + virtualSize)
+                    continue;
+
+                long offset = address - virtualAddress;
+                int toRead = (int)Math.Min(buffer.Length - bytesRead, virtualSize - offset);
+
+                segment.AddressSpace.Write(offset, buffer, toRead);
+                
+                bytesRead += toRead;
+                if (bytesRead == buffer.Length)
+                    break;
+
+                address += toRead;
+            }
+        }
+
         private int GetFirstSegmentContaining(long address)
         {
             int lower = 0;

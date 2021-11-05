@@ -227,6 +227,16 @@ namespace Microsoft.Diagnostics.Runtime.Utilities
             return _stream.Read(dest);
         }
 
+        public void Write(int virtualAddress, byte[] data, int dataLength)
+        {
+            int offset = RvaToOffset(virtualAddress);
+            if (offset == -1)
+                return;
+
+            SeekTo(offset);
+            _stream.Write(data, 0, dataLength);
+        }
+
         /// <summary>
         /// Gets the File Version Information that is stored as a resource in the PE file.  (This is what the
         /// version tab a file's property page is populated with).

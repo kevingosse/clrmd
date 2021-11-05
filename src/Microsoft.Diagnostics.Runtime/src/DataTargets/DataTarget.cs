@@ -93,7 +93,7 @@ namespace Microsoft.Diagnostics.Runtime
                 if (_symlink != null)
                 {
                     try
-                    {   
+                    {
                         File.Delete(_symlink);
                     }
                     catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
@@ -207,6 +207,17 @@ namespace Microsoft.Diagnostics.Runtime
             return _clrs;
         }
 
+        public void ReplaceModules(string pattern, string replacement)
+        {
+            if (DataReader is CoredumpReader reader)
+            {
+                reader.ReplaceModules(pattern, replacement);
+                return;
+            }
+
+            throw new NotImplementedException("Not implemented for " + DataReader.GetType().Name);
+        }
+
         /// <summary>
         /// Enumerates information about the loaded modules in the process (both managed and unmanaged).
         /// </summary>
@@ -280,7 +291,7 @@ namespace Microsoft.Diagnostics.Runtime
                     _ => throw new InvalidDataException($"Stream '{displayName}' is in an unknown or unsupported file format."),
                 };
 
-                return new DataTarget(new CustomDataTarget(reader) {CacheOptions = cacheOptions});
+                return new DataTarget(new CustomDataTarget(reader) { CacheOptions = cacheOptions });
 
 #pragma warning restore CA2000 // Dispose objects before losing scope
             }
@@ -306,7 +317,7 @@ namespace Microsoft.Diagnostics.Runtime
                 throw new FileNotFoundException($"Could not open dump file '{filePath}'.", filePath);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope - LoadDump(Stream) will take ownership
-            FileStream stream = File.OpenRead(filePath);
+            FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite);
 #pragma warning restore CA2000 // Dispose objects before losing scope
             return LoadDump(filePath, stream, cacheOptions, leaveOpen: false);
         }

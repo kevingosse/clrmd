@@ -58,7 +58,7 @@ namespace Microsoft.Diagnostics.Runtime
 
         internal override unsafe bool GetFileVersion(string dll, out int major, out int minor, out int revision, out int patch)
         {
-            using FileStream stream = File.OpenRead(dll);
+            using FileStream stream = File.Open(dll, FileMode.Open, FileAccess.ReadWrite);
             StreamAddressSpace streamAddressSpace = new StreamAddressSpace(stream);
             Reader streamReader = new Reader(streamAddressSpace);
             ElfFile file = new ElfFile(streamReader);

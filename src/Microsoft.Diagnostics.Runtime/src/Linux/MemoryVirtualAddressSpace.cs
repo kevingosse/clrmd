@@ -15,6 +15,11 @@ namespace Microsoft.Diagnostics.Runtime.Linux
             _dataReader = dataReader;
         }
 
+        public void Write(long position, byte[] buffer, int length)
+        {
+            _dataReader.Write((ulong)position, buffer, length);
+        }
+
         public long Length => throw new NotImplementedException();
 
         public string Name => nameof(MemoryVirtualAddressSpace);
