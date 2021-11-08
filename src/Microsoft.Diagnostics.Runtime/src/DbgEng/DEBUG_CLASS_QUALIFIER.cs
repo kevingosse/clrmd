@@ -5,7 +5,7 @@
 namespace Microsoft.Diagnostics.Runtime.DbgEng
 {
 #pragma warning disable CA1069 // Enums values should not be duplicated
-    internal enum DEBUG_CLASS_QUALIFIER : uint
+    public enum DEBUG_CLASS_QUALIFIER : uint
     {
         KERNEL_CONNECTION = 0,
         KERNEL_LOCAL = 1,

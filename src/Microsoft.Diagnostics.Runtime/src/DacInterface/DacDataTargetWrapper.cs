@@ -314,20 +314,38 @@ namespace Microsoft.Diagnostics.Runtime.DacInterface
             return HResult.S_OK;
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate HResult GetMetadataDelegate(IntPtr self, [In][MarshalAs(UnmanagedType.LPWStr)] string fileName, int imageTimestamp, int imageSize,
                                                      IntPtr mvid, uint mdRva, uint flags, uint bufferSize, IntPtr buffer, int* dataSize);
-        private delegate HResult GetMachineTypeDelegate(IntPtr self, out IMAGE_FILE_MACHINE machineType);
-        private delegate HResult GetPointerSizeDelegate(IntPtr self, out int pointerSize);
-        private delegate HResult GetImageBaseDelegate(IntPtr self, [In][MarshalAs(UnmanagedType.LPWStr)] string imagePath, out ulong baseAddress);
-        private delegate HResult ReadVirtualDelegate(IntPtr self, ClrDataAddress address, IntPtr buffer, int bytesRequested, out int bytesRead);
-        private delegate HResult WriteVirtualDelegate(IntPtr self, ClrDataAddress address, IntPtr buffer, uint bytesRequested, out uint bytesWritten);
-        private delegate HResult GetTLSValueDelegate(IntPtr self, uint threadID, uint index, out ulong value);
-        private delegate HResult SetTLSValueDelegate(IntPtr self, uint threadID, uint index, ClrDataAddress value);
-        private delegate HResult GetCurrentThreadIDDelegate(IntPtr self, out uint threadID);
-        private delegate HResult GetThreadContextDelegate(IntPtr self, uint threadID, uint contextFlags, int contextSize, IntPtr context);
-        private delegate HResult SetThreadContextDelegate(IntPtr self, uint threadID, uint contextSize, IntPtr context);
-        private delegate HResult RequestDelegate(IntPtr self, uint reqCode, uint inBufferSize, IntPtr inBuffer, IntPtr outBufferSize, out IntPtr outBuffer);
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetMachineTypeDelegate(IntPtr self, out IMAGE_FILE_MACHINE machineType);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetPointerSizeDelegate(IntPtr self, out int pointerSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetImageBaseDelegate(IntPtr self, [In][MarshalAs(UnmanagedType.LPWStr)] string imagePath, out ulong baseAddress);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult ReadVirtualDelegate(IntPtr self, ClrDataAddress address, IntPtr buffer, int bytesRequested, out int bytesRead);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult WriteVirtualDelegate(IntPtr self, ClrDataAddress address, IntPtr buffer, uint bytesRequested, out uint bytesWritten);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetTLSValueDelegate(IntPtr self, uint threadID, uint index, out ulong value);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult SetTLSValueDelegate(IntPtr self, uint threadID, uint index, ClrDataAddress value);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetCurrentThreadIDDelegate(IntPtr self, out uint threadID);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult GetThreadContextDelegate(IntPtr self, uint threadID, uint contextFlags, int contextSize, IntPtr context);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult SetThreadContextDelegate(IntPtr self, uint threadID, uint contextSize, IntPtr context);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate HResult RequestDelegate(IntPtr self, uint reqCode, uint inBufferSize, IntPtr inBuffer, IntPtr outBufferSize, out IntPtr outBuffer);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate HResult GetRuntimeBaseDelegate([In] IntPtr self, [Out] out ulong address);
     }
 }

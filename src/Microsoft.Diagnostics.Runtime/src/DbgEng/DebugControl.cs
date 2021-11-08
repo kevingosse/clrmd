@@ -9,7 +9,7 @@ using Microsoft.Diagnostics.Runtime.Utilities;
 
 namespace Microsoft.Diagnostics.Runtime.DbgEng
 {
-    internal unsafe sealed class DebugControl : CallableCOMWrapper
+    public unsafe sealed class DebugControl : CallableCOMWrapper
     {
         public const int INITIAL_BREAK = 0x20;
 
@@ -25,6 +25,12 @@ namespace Microsoft.Diagnostics.Runtime.DbgEng
         }
 
         private ref readonly IDebugControlVTable VTable => ref Unsafe.AsRef<IDebugControlVTable>(_vtable);
+
+        public HResult ControlledOutput(uint outputControl, uint mask, string format)
+        {
+            using IDisposable holder = _sys.Enter();
+            return VTable.ControlledOutput(Self, outputControl, mask, format);
+        }
 
         public IMAGE_FILE_MACHINE GetEffectiveProcessorType()
         {
@@ -90,7 +96,7 @@ namespace Microsoft.Diagnostics.Runtime.DbgEng
         public readonly IntPtr ReturnInput;
         public readonly IntPtr Output;
         public readonly IntPtr OutputVaList;
-        public readonly IntPtr ControlledOutput;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, string, HResult> ControlledOutput;
         public readonly IntPtr ControlledOutputVaList;
         public readonly IntPtr OutputPrompt;
         public readonly IntPtr OutputPromptVaList;
