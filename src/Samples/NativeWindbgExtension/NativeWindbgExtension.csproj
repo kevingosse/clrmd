@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Microsoft.Diagnostics.Runtime.Utilities\Microsoft.Diagnostics.Runtime.Utilities.csproj" />
+	  <ProjectReference Include="..\..\Microsoft.Diagnostics.Runtime\Microsoft.Diagnostics.Runtime.csproj" />
+	</ItemGroup>
+
+</Project>

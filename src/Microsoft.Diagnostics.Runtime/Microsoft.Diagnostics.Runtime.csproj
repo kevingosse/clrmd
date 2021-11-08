@@ -9,6 +9,7 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\..\eng\Microsoft.Diagnostics.Runtime.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21558.1" />
     <PackageReference Include="Roslyn.Diagnostics.Analyzers" Version="3.3.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.221401" />
     <!-- <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.113">
