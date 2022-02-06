@@ -1,1 +1,2 @@
 #nullable enable
+Microsoft.Diagnostics.Runtime.DbgEng.IDbgEng

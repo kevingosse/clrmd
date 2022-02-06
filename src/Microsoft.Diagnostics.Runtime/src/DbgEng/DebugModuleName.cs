@@ -4,7 +4,7 @@
 
 namespace Microsoft.Diagnostics.Runtime.DbgEng
 {
-    internal enum DebugModuleName : uint
+    public enum DebugModuleName : uint
     {
         Image,
         Module,

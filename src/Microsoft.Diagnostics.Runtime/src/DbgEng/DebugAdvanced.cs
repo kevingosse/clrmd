@@ -9,7 +9,7 @@ using Microsoft.Diagnostics.Runtime.Utilities;
 
 namespace Microsoft.Diagnostics.Runtime.DbgEng
 {
-    internal unsafe sealed class DebugAdvanced : CallableCOMWrapper
+    public unsafe sealed class DebugAdvanced : CallableCOMWrapper
     {
         internal static readonly Guid IID_IDebugAdvanced = new("f2df5f53-071f-47bd-9de6-5734c3fed689");
 

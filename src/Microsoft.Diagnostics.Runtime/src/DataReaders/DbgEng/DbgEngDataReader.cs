@@ -17,7 +17,7 @@ using Microsoft.Diagnostics.Runtime.Utilities;
 
 namespace Microsoft.Diagnostics.Runtime
 {
-    internal sealed class DbgEngDataReader : CommonMemoryReader, IDataReader, IDisposable, IThreadReader, IExportReader
+    internal sealed class DbgEngDataReader : CommonMemoryReader, IDataReader, IDisposable, IThreadReader, IExportReader, IDbgEng
     {
         private static int s_totalInstanceCount;
 
@@ -118,6 +118,13 @@ namespace Microsoft.Diagnostics.Runtime
                 throw new ArgumentException($"Could not attach to process {processId}, HRESULT: 0x{hr:x}");
             }
         }
+
+        public DebugClient Client => _client;
+        public DebugControl Control => _control;
+        public DebugDataSpaces DataSpaces => _spaces;
+        public DebugAdvanced Advanced => _advanced;
+        public DebugSymbols Symbols => _symbols;
+        public DebugSystemObjects SystemObjects => _systemObjects;
 
         public bool IsThreadSafe => true; // Enforced by Debug* wrappers.
 

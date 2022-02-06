@@ -4,7 +4,7 @@
 
 namespace Microsoft.Diagnostics.Runtime.DbgEng
 {
-    internal enum DebugEnd
+    public enum DebugEnd
     {
         Passive,
         ActiveTerminate,

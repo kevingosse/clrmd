@@ -1,8 +1,6 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 using Microsoft.Diagnostics.Runtime.DbgEng;
-using Microsoft.Diagnostics.Runtime.Interop;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -11,22 +9,19 @@ namespace NativeWindbgExtension
 {
     public class Extension
     {
-        private static readonly RefCountedFreeLibrary _library = new RefCountedFreeLibrary(IntPtr.Zero);
-
-        private static DebugControl DebugControl { get; set; }
         public static DataTarget DataTarget { get; private set; }
         public static ClrRuntime Runtime { get; private set; }
 
         [UnmanagedCallersOnly(EntryPoint = "DebugExtensionInitialize")]
-        public static int DebugExtensionInitialize(ref uint version, ref uint flags)
+        public static unsafe int DebugExtensionInitialize(uint* version, uint* flags)
         {
-            version = (1 & 0xffff) << 16;
-            flags = 0;
+            *version = (1 & 0xffff) << 16;
+            *flags = 0;
             return 0;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "helloworld")]
-        public static void HelloWorld(IntPtr client, IntPtr argsPtr)
+        [UnmanagedCallersOnly(EntryPoint = "heapstat")]
+        public static void HeapStat(IntPtr client, IntPtr argsPtr)
         {
             var args = Marshal.PtrToStringAnsi(argsPtr);
 
@@ -35,12 +30,24 @@ namespace NativeWindbgExtension
                 return;
             }
 
-            Console.WriteLine("Top 10 objects on the heap: ");
+            var heap = Runtime.Heap;
 
-            foreach (var obj in Runtime.Heap.EnumerateObjects().Take(10))
+            var stats = from obj in heap.EnumerateObjects()
+                        group obj by obj.Type into g
+                        let size = g.Sum(p => (long)p.Size)
+                        orderby size
+                        select new
+                        {
+                            Size = size,
+                            Count = g.Count(),
+                            g.Key.Name
+                        };
+
+            foreach (var entry in stats)
             {
-                Console.WriteLine("{0:x2}: {1}", obj.Address, obj.Type.ToString());
+                Console.WriteLine("{0,12:n0} {1,12:n0} {2}", entry.Count, entry.Size, entry.Name);
             }
+
         }
 
         private static bool InitApi(IntPtr ptrClient)
@@ -49,16 +56,15 @@ namespace NativeWindbgExtension
             //   1. Store a copy of IDebugClient in DebugClient.
             //   2. Replace Console's output stream to be the debugger window.
             //   3. Create an instance of DataTarget using the IDebugClient.
-            if (DebugControl == null)
+            if (DataTarget == null)
             {
-                var systemObjects = new DebugSystemObjects(_library, ptrClient);
-                DebugControl = new DebugControl(_library, ptrClient, systemObjects);
+                DataTarget = DataTarget.CreateFromDbgEng(ptrClient);
 
-                var stream = new StreamWriter(new DebugEngineStream(DebugControl));
+                var dbgEng = (IDbgEng)DataTarget.DataReader;
+
+                var stream = new StreamWriter(new DebugEngineStream(dbgEng.Control));
                 stream.AutoFlush = true;
                 Console.SetOut(stream);
-
-                DataTarget = DataTarget.CreateFromDbgEng(ptrClient);
             }
 
             // If our ClrRuntime instance is null, it means that this is our first call, or
@@ -74,23 +80,7 @@ namespace NativeWindbgExtension
                 {
                     Console.WriteLine(ex.Message);
                 }
-                // Just find a module named mscordacwks and assume it's the one the user
-                // loaded into windbg.
-                //using (var process = Process.GetCurrentProcess())
-                //{
-                //    foreach (ProcessModule module in process.Modules)
-                //    {
-                //        var fileName = module.FileName.ToLowerInvariant();
-
-                //        if (fileName.Contains("mscordacwks") || fileName.Contains("mscordaccore"))
-                //        {
-                //            Runtime = DataTarget.ClrVersions.Single().CreateRuntime(module.FileName);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                // Otherwise, the user didn't run .cordll.
+                
                 if (Runtime == null)
                 {
                     Console.WriteLine("Mscordacwks.dll not loaded into the debugger.");
