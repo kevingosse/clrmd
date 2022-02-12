@@ -21,13 +21,13 @@ namespace NativeWindbgExtension
         }
 
         [UnmanagedCallersOnly(EntryPoint = "heapstat")]
-        public static void HeapStat(IntPtr client, IntPtr argsPtr)
+        public static int HeapStat(IntPtr client, IntPtr argsPtr)
         {
             var args = Marshal.PtrToStringAnsi(argsPtr);
 
             if (!InitApi(client))
             {
-                return;
+                return 0;
             }
 
             var heap = Runtime.Heap;
@@ -48,6 +48,7 @@ namespace NativeWindbgExtension
                 Console.WriteLine("{0,12:n0} {1,12:n0} {2}", entry.Count, entry.Size, entry.Name);
             }
 
+            return 0;
         }
 
         private static bool InitApi(IntPtr ptrClient)
